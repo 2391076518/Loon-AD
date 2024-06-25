@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Get AD domains
         run: |
-          wget https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt >> reject-tld-list.txt
+          wget https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt > reject-tld-list.txt
           
       - name: Add DOMAIN-SET
         run: |
