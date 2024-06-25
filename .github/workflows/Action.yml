@@ -14,11 +14,11 @@ jobs:
     steps:
       - name: Get AD domains
         run: |
-          wget https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt >> reject-list.txt
+          wget https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt >> reject-tld-list.txt
           
       - name: Add DOMAIN-SET
         run: |
-          awk '{print "." $0}' reject-list.txt > reject-list.txt
+          awk '{print "." $0}' reject-tld-list.txt > reject-list.txt
           
       - name: Git push assets to "release" branch
         run: |
