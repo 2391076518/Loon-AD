@@ -32,5 +32,5 @@ jobs:
           git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git branch -M release
           git add .
-          git commit -m "Update at $(TZ=UTC-8 date +"%Y-%m-%d %H:%M")"
+          git commit -m "Update release"
           git push -f -u origin release
