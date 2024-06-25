@@ -14,10 +14,16 @@ jobs:
     steps:
       - name: Get AD domains
         run: |
-          wget -O reject-list.txt https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt
+          wget -O reject-list1.txt https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt
+          wget -O reject-list2.txt https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules.list
       - name: Add DOMAIN-SET
         run: |
-          sed -i 's/^/./' reject-list.txt
+          sed -i 's/^/./' reject-list1.txt
+          sed -i 's/DOMAIN-SUFFIX,/./g' reject-list2.txt
+          sed -i '1,2d' reject-list2.txt
+          sed -e '$r reject-list2.txt' reject-list1.txt >> reject-list.txt
+          sort reject-list.txt | uniq > reject.txt
+          rm -f reject-list.txt reject-list1.txt reject-list2.txt
       - name: Git push assets to "release" branch
         run: |
           git init
