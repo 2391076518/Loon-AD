@@ -1,0 +1,33 @@
+name: Build Loon AD files
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "10 22 * * *"
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**/README.md"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get AD domains
+        run: |
+          wget https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt >> temp-reject.txt
+          
+      - name: Add DOMAIN-SET
+        run: |
+          awk '{print "." $0}' temp-reject.txt > reject-list.txt
+          rm temp-reject.txt
+          
+      - name: Git push assets to "release" branch
+        run: |
+          git init
+          git config --local user.email "github-action@users.noreply.github.com"
+          git config --local user.name "GitHub Action"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git branch -M release
+          git add .
+          git commit -m "Update release"
+          git push -f -u origin release
