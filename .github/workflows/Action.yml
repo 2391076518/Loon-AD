@@ -33,4 +33,5 @@ jobs:
           git branch -M release
           git add .
           git commit -m "Update release"
+          git commit -m "Update at $(TZ=UTC-8 date +"%Y-%m-%d %H:%M")"
           git push -f -u origin release
