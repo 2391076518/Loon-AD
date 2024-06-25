@@ -24,6 +24,8 @@ jobs:
           sed -e '$r reject-list2.txt' reject-list1.txt >> reject-list.txt
           sort reject-list.txt | uniq > reject.txt
           rm -f reject-list.txt reject-list1.txt reject-list2.txt
+          time=$(date +"%Y-%m-%d %H:%M:%S")
+          sed -i '1i\#自动更新时间: '"$time"'' reject.txt
       - name: Git push assets to "release" branch
         run: |
           git init
