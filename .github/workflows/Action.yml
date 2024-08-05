@@ -16,14 +16,16 @@ jobs:
         run: |
           wget -O reject-list1.txt https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/reject-list.txt
           wget -O reject-list2.txt https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules.list
+          wget -O reject-list3.txt https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Surge.list
       - name: Add DOMAIN-SET
         run: |
           sed -i 's/^/./' reject-list1.txt
           sed -i 's/DOMAIN-SUFFIX,/./g' reject-list2.txt
           sed -i '1,2d' reject-list2.txt
-          sed -e '$r reject-list2.txt' reject-list1.txt >> reject-list.txt
+          sed -i '1,8d' reject-list3.txt
+          sed -e '$r reject-list3.txt' reject-list2.txt reject-list1.txt >> reject-list.txt
           sort reject-list.txt | uniq > reject.txt
-          rm -f reject-list.txt reject-list1.txt reject-list2.txt
+          rm -f reject-list.txt reject-list1.txt reject-list2.txt reject-list3.txt
           time=$(date +"%Y-%m-%d %H:%M:%S")
           sed -i '1i\#自动更新时间: '"$time"'' reject.txt
       - name: Git push assets to "release" branch
