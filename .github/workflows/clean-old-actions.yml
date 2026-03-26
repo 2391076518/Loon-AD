@@ -1,0 +1,24 @@
+name: Delete Old GitHub Action Runs
+
+on:
+  # 每天凌晨 2 点自动清理
+  schedule:
+    - cron: '0 2 * * *'
+  # 也可以手动触发
+  workflow_dispatch:
+
+jobs:
+  del_runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          # 保留最近多少条运行记录
+          keep_minimum_runs: 5
+          # 可选：删除运行天数超过 X 天的旧记录
+          # delete_run_by_con_days: 30
