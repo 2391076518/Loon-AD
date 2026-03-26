@@ -1,36 +1,35 @@
-name: Auto Delete Old GitHub Actions Runs
+name: Clean Actions (Keep Latest 5)
 on:
-  schedule:
-    - cron: '0 2 * * *'  # 每天 2 点自动执行
-  workflow_dispatch:     # 允许手动触发
+  workflow_dispatch:     # 手动触发
+  schedule:              # 每天自动清理（可选）
+    - cron: '0 2 * * *'
 
 permissions:
   actions: write
   contents: read
 
 jobs:
-  clean-old-runs:
+  clean-runs:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete old workflow runs (native gh cli)
+      - name: Delete old runs, keep latest 5
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          # 配置：保留最近 30 条运行记录（可修改）
-          KEEP_LATEST=5
+          KEEP=5
+          echo "保留最新 $KEEP 条 Action 记录"
 
-          # 获取所有工作流运行记录，按时间倒序
-          runs=$(gh run list --json databaseId,createdAt --limit 1000 | jq -r '.[].databaseId')
+          # 获取所有运行ID（最新在前）
+          RUN_IDS=$(gh run list --json databaseId --limit 1000 --jq '.[].databaseId')
 
-          # 跳过前 KEEP_LATEST 条，删除剩下所有旧记录
           count=0
-          for run in $runs; do
+          for id in $RUN_IDS; do
             count=$((count+1))
-            if [ $count -gt $KEEP_LATEST ]; then
-              echo "Deleting old run: $run"
-              gh run delete $run
+            if [ $count -gt $KEEP ]; then
+              echo "删除旧记录: $id"
+              gh run delete "$id"
             fi
           done
 
-          echo "✅ Cleanup finished! Kept last $KEEP_LATEST runs."
+          echo "✅ 清理完成！仅保留最新 $KEEP 条运行记录"
