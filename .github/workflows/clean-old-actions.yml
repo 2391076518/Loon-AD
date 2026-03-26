@@ -1,24 +1,36 @@
-name: Delete Old GitHub Action Runs
-
+name: Auto Delete Old GitHub Actions Runs
 on:
-  # 每天凌晨 2 点自动清理
   schedule:
-    - cron: '0 2 * * *'
-  # 也可以手动触发
-  workflow_dispatch:
+    - cron: '0 2 * * *'  # 每天 2 点自动执行
+  workflow_dispatch:     # 允许手动触发
+
+permissions:
+  actions: write
+  contents: read
 
 jobs:
-  del_runs:
+  clean-old-runs:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
     steps:
-      - name: Delete old workflow runs
-        uses: Mattraks/delete-workflow-runs@v2
-        with:
-          token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          # 保留最近多少条运行记录
-          keep_minimum_runs: 5
-          # 可选：删除运行天数超过 X 天的旧记录
-          # delete_run_by_con_days: 30
+      - name: Delete old workflow runs (native gh cli)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # 配置：保留最近 30 条运行记录（可修改）
+          KEEP_LATEST=5
+
+          # 获取所有工作流运行记录，按时间倒序
+          runs=$(gh run list --json databaseId,createdAt --limit 1000 | jq -r '.[].databaseId')
+
+          # 跳过前 KEEP_LATEST 条，删除剩下所有旧记录
+          count=0
+          for run in $runs; do
+            count=$((count+1))
+            if [ $count -gt $KEEP_LATEST ]; then
+              echo "Deleting old run: $run"
+              gh run delete $run
+            fi
+          done
+
+          echo "✅ Cleanup finished! Kept last $KEEP_LATEST runs."
